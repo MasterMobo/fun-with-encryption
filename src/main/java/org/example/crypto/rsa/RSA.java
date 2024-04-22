@@ -64,30 +64,30 @@ public class RSA implements Cryptosystem {
         return gcdCalculator.gcd(n1, n2) == 1;
     }
 
-    public long pow(long X, long N) {
-        // Source: https://en.wikipedia.org/wiki/Exponentiation_by_squaring#:~:text=The%20iterative%20version%20of%20the%20algorithm%20also%20uses%20a%20bounded%20auxiliary%20space%2C%20and%20is%20given%20by
-        long x = X;
-        long n = N;
+    public long modPow(long base, long exponent, long modulus) {
+        // Computes base^exponent mod modulus using a modular exponent algorithm
+        // Exponentiation by squaring algorithm
+        // Source: https://stackoverflow.com/a/3191350
 
-        if (n < 0) {
-            x = 1 / x;
-            n = -n;
-        }
+        long res = 1;
 
-        if (n == 0) return 1;
-
-        long y = 1;
-        while (n > 1) {
-            if (n % 2 != 0) {
-                y = x * y;
-                n = n - 1;
+        // Some very clever bit operations
+        while (exponent > 0) {
+            if ((exponent & 1) != 0) {
+                res = (res * base) % modulus;
             }
-
-            x = x * x;
-            n = n / 2;
+            base = (base * base) % modulus;
+            exponent >>= 1;
         }
 
-        return x * y;
+        // Small brain version, basically take the mod every step instead of at the end
+        // (which would require working with very big numbers)
+//        for (int i = 1; i <= exponent; i++) {
+//            res *= base;
+//            res %= modulus;
+//        }
+
+        return res;
     }
 
     @Override
@@ -104,11 +104,11 @@ public class RSA implements Cryptosystem {
 
         d = multInverseCalculator.calculate(e, lambdaN);
 
-        return pow(message, e) % n;
+        return modPow(message, e, n);
     }
 
     @Override
     public long decrypt(long cipher) {
-        return pow(cipher, d) % n;
+        return modPow(cipher, d, n);
     }
 }

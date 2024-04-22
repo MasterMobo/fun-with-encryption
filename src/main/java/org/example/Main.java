@@ -5,12 +5,11 @@ import org.example.crypto.rsa.RSA;
 
 public class Main {
     public static void main(String[] args) {
-        Cryptosystem rsa = new RSA(3, 11, 3);
+        RSA rsa = new RSA(61, 53, 17);
 
-        long message = 5;
+        long message = 2000;
         long cipher = rsa.encrypt(message);
 
         System.out.println(rsa.decrypt(cipher));
-
     }
 }
