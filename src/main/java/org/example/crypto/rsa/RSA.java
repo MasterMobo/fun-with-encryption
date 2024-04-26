@@ -69,23 +69,26 @@ public class RSA implements Cryptosystem {
         // Exponentiation by squaring algorithm
         // Source: https://stackoverflow.com/a/3191350
 
+        // We start by reading the LSB of the exponent (right-to-left)
+
+        // Every time the exponent doubles (shifted right a bit), the base has to square.
+        // If we see a 0 after doubling, we do not need to do anything.
+        // If we see a 1, we know we need to add one more exponent,
+        // Which is the same as multiplying by the base.
+
         long res = 1;
 
-        // Some very clever bit operations
         while (exponent > 0) {
-            if ((exponent & 1) != 0) {
-                res = (res * base) % modulus;
-            }
-            base = (base * base) % modulus;
-            exponent >>= 1;
-        }
 
-        // Small brain version, basically take the mod every step instead of at the end
-        // (which would require working with very big numbers)
-//        for (int i = 1; i <= exponent; i++) {
-//            res *= base;
-//            res %= modulus;
-//        }
+            // Read the LSB to see if it's 1
+            if ((exponent & 1) == 1) {
+                res = (res * base) % modulus;    // If 1 then multiply by the base
+            }
+
+            // Shift right to next bit
+            exponent >>= 1;
+            base = (base * base) % modulus;   // Square the base
+        }
 
         return res;
     }
